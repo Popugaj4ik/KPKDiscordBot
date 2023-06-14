@@ -16,7 +16,6 @@ namespace DiscordBotSyriaRP.Modules.ModalModules
         public HandleModalCallbackButton(IServiceProvider provider)
         {
             Config = provider.GetRequiredService<Config>();
-            DB = provider.GetRequiredService<KPKContext>();
 
             if (Config.ChatChannelID == null || Config.LogChannelID == null)
             {
