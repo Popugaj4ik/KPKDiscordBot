@@ -11,6 +11,7 @@ namespace DiscordBotSyriaRP.Logger
 
         private void LogToConsole(ConsoleLoger consoleLogger, LogMessage message)
         {
+            var time = DateTimeOffset.Now;
             Console.ForegroundColor = message.Severity switch
             {
                 LogSeverity.Error => ConsoleColor.DarkRed,
@@ -19,7 +20,7 @@ namespace DiscordBotSyriaRP.Logger
                 LogSeverity.Verbose => ConsoleColor.DarkGreen,
                 _ => ConsoleColor.Gray,
             };
-            Console.WriteLine($"{{{guid.ToString()[^4..]}}} : {message}");
+            Console.WriteLine($"{{{guid}}} {time.ToString("yyyy:MM:dd MMM-ddd HH:mm:ss.fff (zzz)")} {{{message.Severity}}}: {message}");
         }
     }
 }

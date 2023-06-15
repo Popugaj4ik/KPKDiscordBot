@@ -2,7 +2,6 @@
 using Discord.WebSocket;
 using DiscordBotSyriaRP.Configs;
 using DiscordBotSyriaRP.Constants;
-using DiscordBotSyriaRP.EF;
 using DiscordBotSyriaRP.Modals;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
@@ -11,11 +10,11 @@ namespace DiscordBotSyriaRP.Modules.ModalModules
 {
     public class HandleModalCallbackButton : InteractionModuleBase<SocketInteractionContext>
     {
-        private Config Config;
+        private DynamicConfig Config;
 
         public HandleModalCallbackButton(IServiceProvider provider)
         {
-            Config = provider.GetRequiredService<Config>();
+            Config = provider.GetRequiredService<DynamicConfig>();
 
             if (Config.ChatChannelID == null || Config.LogChannelID == null)
             {

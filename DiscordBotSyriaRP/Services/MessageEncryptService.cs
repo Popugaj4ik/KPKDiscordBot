@@ -1,20 +1,16 @@
 ﻿using DiscordBotSyriaRP.Configs;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace DiscordBotSyriaRP.Services
 {
     public class MessageEncryptService
     {
-        private Config Config;
+        private DynamicConfig Config;
 
         public MessageEncryptService(IServiceProvider provider)
         {
-            Config = provider.GetRequiredService<Config>();
+            Config = provider.GetRequiredService<DynamicConfig>();
         }
 
         public async Task<string> MakeNoise(string Username, string msg)
