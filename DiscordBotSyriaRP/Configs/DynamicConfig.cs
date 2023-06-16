@@ -1,11 +1,8 @@
-﻿using Discord;
-
-namespace DiscordBotSyriaRP.Configs
+﻿namespace DiscordBotSyriaRP.Configs
 {
-    public class Config
+    public class DynamicConfig
     {
         public char Prefix { get; set; }
-        public string BotToken { get; set; } = string.Empty;
         public UInt64 ChatChannelID { get; set; }
         public UInt64 LogChannelID { get; set; }
         public double ProbabilityOfNoiseAppearing { get; set; }
@@ -16,13 +13,13 @@ namespace DiscordBotSyriaRP.Configs
         public bool IsIconsInMessageAllowed { get; set; }
         public string? DefaultIconLink { get; set; }
         public UInt64[] Admins { get; set; } = Array.Empty<UInt64>();
-        public Dictionary<string, byte[]> CharactersColors { get; set; } = new Dictionary<string, byte[]>();
+        public Dictionary<string, int[]> CharactersColors { get; set; } = new Dictionary<string, int[]>();
         public UserGroup[] UserGroups { get; set; } = Array.Empty<UserGroup>();
     }
 
     public class UserGroup
     {
-        public byte[] Color { get; set; } = Array.Empty<byte>();
+        public int[] Color { get; set; } = Array.Empty<int>();
         public UInt64[] Users { get; set; } = Array.Empty<UInt64>();
         public string GroupImage { get; set; } = string.Empty;
     }

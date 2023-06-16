@@ -15,7 +15,9 @@ using Microsoft.Extensions.Hosting;
 
 public class Program
 {
-    private string ConfigFileName = "config.json";
+    private string StartrupConfigFileName = "StartupConfig.json";
+    private string DynamicConfigFileName = "DynamicConfig.json";
+    private static ConfigWatcher<DynamicConfig> configWatcher = null;
 
     public static void Main(string[] args)
     {
@@ -25,12 +27,18 @@ public class Program
 
     public async Task PreStartAsync()
     {
-        var config = new ConfigurationBuilder()
-            .SetBasePath(AppContext.BaseDirectory)
-            .AddJsonFile(ConfigFileName)
+        var startupCfg = new ConfigurationBuilder()
+            .SetBasePath(Directory.GetCurrentDirectory())
+            .AddJsonFile(StartrupConfigFileName)
             .Build();
 
-        var AppConfig = config.GetSection("AppConfig").Get<Config>();
+        var dynamicCfg = new ConfigurationBuilder()
+            .SetBasePath(Directory.GetCurrentDirectory())
+            .AddJsonFile(DynamicConfigFileName)
+            .Build();
+
+        var StartupConfig = startupCfg.Get<StartupConfig>();
+        var DynamicConfig = dynamicCfg.Get<DynamicConfig>();
 
         using IHost host = Host.CreateDefaultBuilder()
             .ConfigureServices((_, services) =>
@@ -41,7 +49,9 @@ public class Program
                     UseInteractionSnowflakeDate = false,
                     AlwaysDownloadUsers = true,
                 }))
-                .AddSingleton(AppConfig)
+                .AddSingleton(StartupConfig)
+                .AddSingleton(DynamicConfig)
+                .AddSingleton<ConfigWatcher<DynamicConfig>>()
                 .AddSingleton(x => new CommandService())
                 .AddSingleton(x => new InteractionService(x.GetRequiredService<DiscordSocketClient>()))
                 .AddSingleton<Prefixhandler>()
@@ -49,7 +59,7 @@ public class Program
                 .AddSingleton<ModalHandler>()
                 .AddScoped<KPKContext>()
                 .AddScoped<MessageEncryptService>()
-                .AddTransient<ConsoleLoger>()
+                .AddTransient<ILoger, FileLogger>()
                 ;
             })
             .Build();
@@ -67,6 +77,10 @@ public class Program
     private static void OnExit(object sender, EventArgs e)
     {
         Console.ForegroundColor = ConsoleColor.Gray;
+        if (configWatcher != null)
+        {
+            configWatcher.Stop();
+        }
     }
 
     private async Task RunAsync(IHost host)
@@ -74,9 +88,12 @@ public class Program
         using IServiceScope serviceScope = host.Services.CreateScope();
         IServiceProvider provider = serviceScope.ServiceProvider;
 
+        configWatcher = provider.GetRequiredService<ConfigWatcher<DynamicConfig>>();
+        configWatcher.Start();
+
         var client = provider.GetRequiredService<DiscordSocketClient>();
 
-        var AppConfig = provider.GetRequiredService<Config>();
+        var AppConfig = provider.GetRequiredService<StartupConfig>();
         var pCommands = provider.GetRequiredService<Prefixhandler>();
         pCommands.AddModule<HelpModule>(provider);
 
@@ -92,11 +109,11 @@ public class Program
         await menuCommands.InitializeAsync();
         await modalCommands.InitializeAsync();
 
-        client.Log += _ => provider.GetRequiredService<ConsoleLoger>().Log(_);
+        client.Log += _ => provider.GetRequiredService<ILoger>().Log(_);
 
         client.Ready += async () =>
         {
-            provider.GetRequiredService<ConsoleLoger>().Log(new LogMessage(LogSeverity.Info, "Server", "Bot ready"));
+            provider.GetRequiredService<ILoger>().Log(new LogMessage(LogSeverity.Info, "Server", "Bot ready"));
         };
 
         client.ButtonExecuted += async (msg) =>

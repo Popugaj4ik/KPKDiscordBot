@@ -14,13 +14,13 @@ namespace DiscordBotSyriaRP.Modules
 {
     public class HelpModule : ModuleBase<SocketCommandContext>
     {
-        private Config Config;
+        private DynamicConfig Config;
         private DiscordSocketClient client;
         private KPKContext DB;
 
         public HelpModule(IServiceProvider provider)
         {
-            Config = provider.GetRequiredService<Config>();
+            Config = provider.GetRequiredService<DynamicConfig>();
             client = provider.GetRequiredService<DiscordSocketClient>();
             DB = provider.GetRequiredService<KPKContext>();
         }

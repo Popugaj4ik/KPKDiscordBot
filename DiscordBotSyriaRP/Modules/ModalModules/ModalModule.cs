@@ -17,17 +17,17 @@ namespace DiscordBotSyriaRP.Modules
 {
     public class ModalModule : InteractionModuleBase<SocketInteractionContext>
     {
-        private Loger Loger;
-        private Config Config;
+        private ILoger Loger;
+        private DynamicConfig Config;
         private DiscordSocketClient client;
         private MessageEncryptService MessageEncryptService;
         private KPKContext DB;
 
         public ModalModule(IServiceProvider provider)
         {
-            Loger = provider.GetRequiredService<ConsoleLoger>();
+            Loger = provider.GetRequiredService<ILoger>();
             client = provider.GetRequiredService<DiscordSocketClient>();
-            Config = provider.GetRequiredService<Config>();
+            Config = provider.GetRequiredService<DynamicConfig>();
             MessageEncryptService = provider.GetRequiredService<MessageEncryptService>();
             DB = provider.GetRequiredService<KPKContext>();
 
@@ -301,11 +301,14 @@ namespace DiscordBotSyriaRP.Modules
             await RespondAsync("Теперь сообщения будут выглядить вот так:", embed: embed.Build());
         }
 
-        private Color FromByte(byte[] data)
+        private Color FromByte(int[] data)
         {
             if (data.Length < 3) return Color.Default;
 
-            return new Color(data[0], data[1], data[2]);
+            if (data[0] < 0 || data[0] > 255 && data[1] < 0 || data[1] > 255 && data[2] < 0 || data[2] > 255)
+                return new Color(data[0], data[1], data[2]);
+            else
+                return Color.Default;
         }
     }
 }

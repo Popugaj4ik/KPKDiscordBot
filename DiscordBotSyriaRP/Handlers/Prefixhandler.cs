@@ -35,7 +35,7 @@ namespace DiscordBotSyriaRP.Handlers
 
             int argPos = 0;
 
-            var AppConfig = _serviceProvider.GetRequiredService<Config>();
+            var AppConfig = _serviceProvider.GetRequiredService<DynamicConfig>();
 
             if (!(message.HasCharPrefix(AppConfig.Prefix, ref argPos)
                 || message.HasMentionPrefix(_client.CurrentUser, ref argPos))
